@@ -1,0 +1,10 @@
+#!/bin/sh
+
+NAME=${PWD##*/}
+TAG=${1:-"latest"}
+
+echo "Building ${NAME}:${TAG}"
+read
+
+docker build -t aliem/${NAME}:${TAG} .
+docker push aliem/${NAME}:${TAG}
