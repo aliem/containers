@@ -1,30 +1,52 @@
-FROM alpine:3.2
+# Minimalistic image based on Alpine
+FROM alpine:edge
 
-ENV NODE_VERSION=v5.4.0 NPM_VERSION=3
+RUN apk add --update wget bash tar git libgcc libstdc++; \
+    mkdir -p /app;
 
-RUN apk add --update git curl make gcc g++ python linux-headers libgcc libstdc++ binutils-gold && \
-    curl -sSL https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}.tar.gz | tar -xz && \
-    cd /node-${NODE_VERSION} && \
-    ./configure --prefix=/usr --without-snapshot --fully-static && \
+ENV NODE_PREFIX=/usr/local \
+    NODE_VERSION=5.4.1 \
+    NODE_ENV=production
+
+RUN NODE_SOURCE="/usr/src/node"; \
+    DOWNLOAD_PATH=https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}.tar.gz; \
+    apk add --update --virtual build-deps make gcc g++ python linux-headers paxctl binutils-gold &&\
+    mkdir -p $NODE_SOURCE && \
+    wget -O - $DOWNLOAD_PATH -nv | tar -xz --strip-components=1 -C $NODE_SOURCE && \
+    cd $NODE_SOURCE && \
+    ./configure --prefix=$NODE_PREFIX && \
     make -j$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) && \
     make install && \
+    paxctl -cm ${NODE_PREFIX}/bin/node && \
     cd / && \
-    npm install -g npm@${NPM_VERSION} && \
-    rm -rf /node-${NODE_VERSION} \
-    /usr/share/man /tmp/* /var/cache/apk/* /root/.npm /root/.node-gyp \
-    /usr/lib/node_modules/npm/man /usr/lib/node_modules/npm/doc /usr/lib/node_modules/npm/html
+    npm config set cache /tmp/npm --global \
+    apk del build-deps &&\
+    rm -rf \
+        ${NODE_SOURCE} \
+        /etc/ssl \
+        ${NODE_PREFIX}/include \
+        ${NODE_PREFIX}/share/man \
+        /tmp/* \
+        /var/cache/apk/* \
+        /root/.npm \
+        /root/.node-gyp \
+        ${NODE_PREFIX}/lib/node_modules/npm/man \
+        ${NODE_PREFIX}/lib/node_modules/npm/doc \
+        ${NODE_PREFIX}/lib/node_modules/npm/html \
+        ;
 
-
-RUN mkdir -p /app
 WORKDIR /app
 
-ONBUILD ADD ./package.json /app
+ONBUILD ADD package.json /app
 
-ONBUILD RUN npm install --production && npm cache clear
+ONBUILD RUN apk add build-deps &&\
+    cd /app && \
+    ${NODE_PREFIX}/bin/npm install --production &&\
+    apk del build-deps &&\
+    rm -rf /tmp/* \
+        /root/.npm \
+        /root/.node-gyp
 
 ONBUILD ADD . /app
 
-ONBUILD EXPOSE 3000
-
-# setup different containers
-CMD ["node", "/app/"]
+CMD ["node", "index"]
