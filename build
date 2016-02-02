@@ -4,7 +4,8 @@ NAME=${PWD##*/}
 TAG=${1:-"latest"}
 
 echo "Building ${NAME}:${TAG}"
-read
+sleep 2
 
 docker build -t aliem/${NAME}:${TAG} .
-docker push aliem/${NAME}:${TAG}
+docker tag -f aliem/${NAME}:${TAG} aliem/${NAME}:latest
+docker push aliem/${NAME}
