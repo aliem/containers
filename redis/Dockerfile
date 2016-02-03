@@ -1,4 +1,4 @@
-FROM gliderlabs/alpine:3.2
+FROM alpine:3.3
 
 # install needed packages
 RUN apk add --update redis \
