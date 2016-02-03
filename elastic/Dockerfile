@@ -5,9 +5,6 @@ ENV ES_HOME=/opt/elasticsearch
 ENV ES_LIB=/var/lib/elasticsearch
 ENV ES_USER=elasticsearch
 
-ADD ./gosu /usr/bin/gosu
-ADD ./elasticsearch $ES_HOME
-ADD ./elasticsearch.yml /opt/elasticsearch/config/elasticsearch.yml
 ADD ./start.sh /start.sh
 
 RUN \
