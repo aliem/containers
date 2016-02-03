@@ -1,6 +1,6 @@
 FROM aliem/java
 
-ENV ES_VERSION 2.1.1
+ENV ES_VERSION 2.2.0
 ENV ES_HOME=/opt/elasticsearch
 ENV ES_LIB=/var/lib/elasticsearch
 ENV ES_USER=elasticsearch
