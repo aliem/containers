@@ -24,4 +24,4 @@ VOLUME ["/var/lib/elasticsearch"]
 EXPOSE 9200
 EXPOSE 9300
 
-CMD ["/start.sh"]
+ENTRYPOINT "/start.sh"

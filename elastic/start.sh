@@ -3,26 +3,8 @@ set -e
 
 pids=""
 
-# uses es home to load all configs.
-# adding a "commandopts" to the volume allows you to pass more options to elasticsearch 
-# for example heap size. "-Xmx10g -Xms10g"
-
-# production recommendations http://www.elastic.co/guide/en/elasticsearch/guide/current/deploy.html
-
-echo "==============================="
-echo "starting elastic search."
-echo "==============================="
-echo "-------------------------------"
-echo "checking ulimits"
-echo "-------------------------------"
-
 mapmax=`cat /proc/sys/vm/max_map_count`
 filemax=`cat /proc/sys/fs/file-max`
-
-# ulimit -a;
-
-echo "fs.file_max: $filemax"
-echo "vm.max_map_count: $mapmax"
 
 fds=`ulimit -n`
 if [ "$fds" -lt "64000" ] ; then
@@ -30,34 +12,6 @@ if [ "$fds" -lt "64000" ] ; then
     echo "the docker deamon should be run with increased file descriptors to increase those available in the container"
     echo " try \`ulimit -n 64000\`"
 fi
-
-# per user file max
-
-#sysctl -w fs.file-max=100000
-
-#if [ "$mapmax" -lt "262144" ]; then
-#  sysctl -w vm.max_map_count=262144
-#fi
-
-vol=/var/lib/elasticsearch
-
-esopts=""
-if [ -f "$vol/elasticsearch.yml" ]; then
-    esopts="-Des.path.home=$vol";
-    echo "setting es.path.home to $vol"
-else 
-    echo "[WARNING] missing elasticsearch config. not setting es.path.home to $vol"
-fi
-
-commandopts=""
-if [ -f "${ES_LIB}/javaopts.sh" ]; then
-    commandopts=`cat /var/lib/elasticsearch/commandopts`
-fi
-
-echo "+-----------------------------+"
-echo "| elastic search command      |"
-echo "+-----------------------------+"
-echo "/usr/bin/gosu ${ES_USER} ${ES_HOME}/bin/elasticsearch $commandopts $esopts"
 
 fixperm() {
     chown -R $ES_USER $ES_HOME
@@ -73,11 +27,11 @@ onexit() {
 
 main() {
     trap onexit INT TERM
-    /usr/bin/gosu ${ES_USER} ${ES_HOME}/bin/elasticsearch $commandopts $esopts &
+    /usr/bin/gosu ${ES_USER} ${ES_HOME}/bin/elasticsearch -Des.path.home=${ES_LIB} -Dnetwork.host=_non_loopback_ $@ &
     pid="$(jobs -p %%)"
 }
 
 fixperm
-main
+main $@
 
 wait $pid
