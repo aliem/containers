@@ -50,18 +50,18 @@ else
 fi
 
 commandopts=""
-if [ -f "/var/lib/elasticsearch/javaopts.sh" ]; then
+if [ -f "${ES_LIB}/javaopts.sh" ]; then
     commandopts=`cat /var/lib/elasticsearch/commandopts`
 fi
 
 echo "+-----------------------------+"
 echo "| elastic search command      |"
 echo "+-----------------------------+"
-echo "/usr/bin/gosu ${ES_USER} /opt/elasticsearch/bin/elasticsearch $commandopts $esopts"
+echo "/usr/bin/gosu ${ES_USER} ${ES_HOME}/bin/elasticsearch $commandopts $esopts"
 
 fixperm() {
     chown -R $ES_USER $ES_HOME
-    chown -R $ES_USER /var/lib/elasticsearch
+    chown -R $ES_USER $ES_LIB
 }
 
 onexit() {
@@ -73,7 +73,7 @@ onexit() {
 
 main() {
     trap onexit INT TERM
-    /usr/bin/gosu ${ES_USER} /opt/elasticsearch/bin/elasticsearch $commandopts $esopts &
+    /usr/bin/gosu ${ES_USER} ${ES_HOME}/bin/elasticsearch $commandopts $esopts &
     pid="$(jobs -p %%)"
 }
 
