@@ -1,6 +1,6 @@
 FROM aliem/base:latest
 RUN \
-	apk-add py-pip &&\
+	apk-install py-pip &&\
 	mkdir -p /app
 
 WORKDIR /app
