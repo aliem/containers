@@ -1,4 +1,4 @@
-FROM alpine:3.3
+FROM aliem/base:latest
 ADD ./src/statsite /statsite
 
-ENTRYPOINT '/statsite'
+ENTRYPOINT ['tini', '--', '/statsite']
