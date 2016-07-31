@@ -2,3 +2,5 @@ run
 /elastic-manual/elasticsearch*
 /elastic-manual/gosu
 /statsite/src/
+
+*~
