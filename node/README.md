@@ -1,1 +1,1 @@
-Basic node.js 5.4.0 over Alpine 3.2
+Basic node.js 6.2.0 over Alpine 3.4
