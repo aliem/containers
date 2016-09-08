@@ -1,11 +1,9 @@
 #!/bin/sh
 set -e
 
-CONFIG=${CONFIG:-/redis.conf}
-CMD="dosu ${USERNAME} redis-server $@"
-
-if [[ -f $CONFIG ]]; then
-    exec redis-server -c $CONFIG
+CONFIG_FILE=${CONFIG_FILE:-/redis.conf}
+if [[ -f $CONFIG_FILE ]]; then
+    exec redis-server $CONFIG_FILE
 else
     exec redis-server
 fi
